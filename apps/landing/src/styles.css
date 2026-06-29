@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Design tokens (CSS vars + @theme) live in the shared @substantiate/ui package
+   so the site and extension render from one source of truth. */
+@import "@substantiate/ui/styles/theme.css";
+
+/* @substantiate/ui lives outside this app's source tree (symlinked
+   node_modules), so Tailwind won't auto-scan it — point it at the package source
+   explicitly so the utility classes used in the shared components get generated. */
+@source "../../../packages/ui/src";
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Visible keyboard focus ring for interactive elements (mouse focus unaffected). */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

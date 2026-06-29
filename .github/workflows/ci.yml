@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read # dorny/paths-filter reads changed files via the PR API
+
+# Cancel superseded runs on the same ref (PR or branch) when new commits land.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Detect which parts of the monorepo changed so the heavy jobs only run when
+  # relevant. The extension and landing both depend on @substantiate/ui, so they
+  # watch packages/ui too.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      extension: ${{ steps.filter.outputs.extension }}
+      landing: ${{ steps.filter.outputs.landing }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            extension:
+              - 'apps/extension/**'
+              - 'packages/ui/**'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/ci.yml'
+            landing:
+              - 'apps/landing/**'
+              - 'packages/ui/**'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/ci.yml'
+
+  extension:
+    needs: changes
+    if: ${{ needs.changes.outputs.extension == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --filter extension compile
+      - name: Unit tests + coverage
+        run: pnpm --filter extension test:coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: apps/extension/coverage/lcov.info
+          flags: extension
+          fail_ci_if_error: false
+      - name: Build + package zip
+        run: pnpm --filter extension zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: extension-zip
+          path: apps/extension/.output/*.zip
+          retention-days: 7
+
+  landing:
+    needs: changes
+    if: ${{ needs.changes.outputs.landing == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --filter landing compile
+      - name: Build
+        run: pnpm --filter landing build
