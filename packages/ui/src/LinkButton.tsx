@@ -17,7 +17,7 @@ interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   children?: ReactNode;
 }
 
-/** An anchor styled as a <Button> — for link CTAs (nav, store, coffee). */
+/** An anchor styled as a <Button> — for link CTAs (nav, store links). */
 export function LinkButton({
   variant = "secondary",
   sm = false,

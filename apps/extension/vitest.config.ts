@@ -18,8 +18,9 @@ export default defineConfig({
       include: ["lib/**"],
       exclude: ["**/*.test.{ts,tsx}", "**/types.ts"],
       reporter: ["text-summary", "lcov"],
-      // Thresholds sit just under current coverage so the bar ratchets up over
-      // time without breaking the build on unrelated changes.
+      // A baseline floor for the scaffold's sample lib (100% covered). Raise
+      // these toward actual coverage as real domain code lands so the bar
+      // ratchets up without breaking the build on unrelated changes.
       thresholds: {
         lines: 90,
         statements: 90,

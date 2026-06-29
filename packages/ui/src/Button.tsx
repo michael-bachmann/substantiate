@@ -12,12 +12,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   busyLabel?: ReactNode;
 }
 
-// Pill radius: the design's light theme overrides buttons to a full pill
-// (.li-app[data-mode="light"] .li-btn { border-radius: 999px }). We ship
-// light-only, so buttons are always pills. (Tiles/thumbs stay rounded-control.)
+// Pill radius: we ship a light-only theme, so buttons are always full pills.
 // `enabled:` guards every hover/active effect so a disabled button is fully
 // inert — disabled <button>s still match :hover in CSS, so without the guard
-// they'd brighten/press (handoff UPDATE.md §2). Holds for all variants below.
+// they'd brighten/press. Holds for all variants below.
 // Exported so the anchor-based `LinkButton` shares the exact shape + sizing.
 // (It can't reuse the `VARIANT` strings below: their `enabled:`/`disabled:`
 // guards never match an <a>, which has no enabled/disabled state.)
