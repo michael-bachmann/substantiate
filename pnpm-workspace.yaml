@@ -1,3 +1,12 @@
-allowBuilds:
-  esbuild: set this to true or false
-  spawn-sync: set this to true or false
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Pre-approve the few dependencies that legitimately need an install/build step
+# (pnpm 10 blocks lifecycle scripts by default). sharp is pulled in by
+# @wxt-dev/auto-icons to rasterize the manifest icons; esbuild + @tailwindcss/oxide
+# fetch their prebuilt native binaries.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - "@tailwindcss/oxide"

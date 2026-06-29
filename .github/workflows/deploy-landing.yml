@@ -1,0 +1,40 @@
+name: Deploy Landing
+
+# Cloudflare does not auto-deploy from GitHub, so deploy the static landing site
+# on merge to main whenever it (or the shared lockfile / shared UI) changed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/landing/**'
+      - 'packages/ui/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-landing.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-landing
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm --filter landing build
+      # Deploy with the workspace-pinned wrangler so it matches the version CI
+      # builds against. wrangler reads the credentials from env.
+      - name: Deploy landing
+        run: pnpm --filter landing exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

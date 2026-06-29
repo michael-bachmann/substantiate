@@ -9,6 +9,10 @@ lerna-debug.log*
 
 node_modules
 .output
+dist
+coverage
+.env
+.env.local
 stats.html
 stats-*.json
 .wxt
@@ -24,3 +28,9 @@ web-ext.config.ts
 *.njsproj
 *.sln
 *.sw?
+
+# Storybook build output
+storybook-static/
+
+# Claude Code local working dir (worktrees, settings)
+.claude/

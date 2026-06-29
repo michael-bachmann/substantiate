@@ -1,0 +1,18 @@
+<!-- Canonical brand mark: rounded-square badge with a check glyph (substantiate
+     = verify / prove out). Single source of truth — rendered as a React
+     component by Mark.tsx (via vite-plugin-svgr `?react`) and rasterized into
+     the extension's manifest icons by @wxt-dev/auto-icons. Uses the literal
+     brand color (the value of the brand token in styles/theme.css) rather than a
+     CSS var, since the icon build rasterizes this file outside the DOM where
+     vars don't resolve. -->
+<svg width="128" height="128" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="28" height="28" rx="8.5" fill="#b5838d" />
+  <path
+    d="M8 14.4 L12.4 18.6 L20 9.6"
+    fill="none"
+    stroke="#fff"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
