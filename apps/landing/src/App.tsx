@@ -1,18 +1,21 @@
-import { Logo, Button } from "@substantiate/ui";
+import { Nav } from "./sections/Nav";
+import { Hero } from "./sections/Hero";
+import { HowItWorks } from "./sections/HowItWorks";
+import { Privacy } from "./sections/Privacy";
+import { Faq } from "./sections/Faq";
+import { Support } from "./sections/Support";
+import { Footer } from "./sections/Footer";
 
 export default function App() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 px-6 text-center">
-      <Logo />
-      <h1 className="text-3xl font-bold tracking-[-0.02em] text-ink">
-        substantiate
-      </h1>
-      <p className="max-w-md text-ink2">
-        Browser extension and companion site. The landing page lands here.
-      </p>
-      <Button href="#" variant="primary" sm>
-        Get the extension
-      </Button>
-    </main>
+    <div className="bg-paper text-ink">
+      <Nav />
+      <Hero />
+      <HowItWorks />
+      <Privacy />
+      <Faq />
+      <Support />
+      <Footer />
+    </div>
   );
 }

@@ -17,6 +17,9 @@ interface ButtonProps {
   disabled?: boolean;
   /** Leading icon; `arrow` renders as a trailing → glyph. */
   icon?: ButtonIcon;
+  /** Extra classes for the leading icon (e.g. `text-terra` for the terracotta
+   *  glyph on secondary install / link buttons). Defaults to `currentColor`. */
+  iconClassName?: string;
   /** Small line above the label (two-line install buttons). */
   sublabel?: ReactNode;
   /** Renders an <a> (opens in a new tab) instead of a <button>. */
@@ -75,6 +78,7 @@ export function Button({
   busyLabel,
   disabled = false,
   icon,
+  iconClassName,
   sublabel,
   href,
   target = "_blank",
@@ -99,7 +103,7 @@ export function Button({
   const content = (
     <>
       {busy && <Spinner size={14} onAccent={variant === "primary"} />}
-      {Leading && <Leading size={18} />}
+      {Leading && <Leading size={18} className={iconClassName} />}
       {sublabel != null ? (
         <span className="flex flex-col text-left leading-[1.1]">
           <span className="text-[10px] font-semibold tracking-[0.04em] opacity-[0.82]">
