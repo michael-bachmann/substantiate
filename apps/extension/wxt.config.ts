@@ -6,7 +6,7 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   modules: ["@wxt-dev/module-react", "@wxt-dev/auto-icons"],
   // Generate the manifest icons (Chrome + Firefox) from a single source — the
-  // brand Mark in packages/ui/src/mark.svg (mirrors @substantiate/ui's Mark).
+  // brand glyph in packages/ui/src/mark.svg (mirrors @substantiate/ui's Logo).
   autoIcons: {
     baseIconPath: "../../packages/ui/src/mark.svg",
     sizes: [128, 96, 48, 32, 16],
@@ -46,7 +46,7 @@ export default defineConfig({
     plugins: [
       tailwindcss(),
       // Lets components import SVGs as React components via the `?react` query
-      // (e.g. @substantiate/ui's Mark). Default include is **/*.svg?react, so
+      // (e.g. @substantiate/ui's Logo). Default include is **/*.svg?react, so
       // plain SVG URL imports (public/, assets/) are untouched.
       svgr(),
     ],

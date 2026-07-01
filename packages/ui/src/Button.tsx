@@ -1,68 +1,150 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 import { Spinner } from "./Spinner";
+import { PuzzleIcon, CoffeeIcon, FolderIcon } from "./icons";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonIcon = "puzzle" | "coffee" | "folder" | "arrow";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   variant?: ButtonVariant;
-  /** Compact 36px, auto-width variant (default is 44px, full-width). */
+  /** Compact size. */
   sm?: boolean;
+  /** Full-width. */
+  block?: boolean;
   /** Show a spinner and (optionally) swap the label while an action runs. */
   busy?: boolean;
   busyLabel?: ReactNode;
+  disabled?: boolean;
+  /** Leading icon; `arrow` renders as a trailing → glyph. */
+  icon?: ButtonIcon;
+  /** Small line above the label (two-line install buttons). */
+  sublabel?: ReactNode;
+  /** Renders an <a> (opens in a new tab) instead of a <button>. */
+  href?: string;
+  target?: string;
+  rel?: string;
+  type?: "button" | "submit" | "reset";
+  onClick?: MouseEventHandler<HTMLElement>;
+  "aria-label"?: string;
+  className?: string;
+  children?: ReactNode;
 }
 
-// `enabled:` guards every hover/active effect so a disabled button is fully
-// inert — disabled <button>s still match :hover in CSS, so without the guard
-// they'd brighten/press. Holds for all variants below.
-// Exported so the anchor-based `LinkButton` shares the exact shape + sizing.
-// (It can't reuse the `VARIANT` strings below: their `enabled:`/`disabled:`
-// guards never match an <a>, which has no enabled/disabled state.)
-export const BASE =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold tracking-[-0.005em] transition enabled:active:translate-y-px disabled:cursor-default";
+// Shared shape/typography (no display, size, or color — those vary). Kept DRY so
+// both the <button> and <a> render paths share one source of truth.
+const BASE =
+  "items-center justify-center gap-[9px] rounded-button border border-transparent font-bold tracking-[0.005em] no-underline transition";
 
-export const SIZE = {
-  default: "min-h-[44px] w-full px-4 py-[11px] text-[14.5px]",
-  sm: "min-h-[36px] w-auto px-[13px] py-2 text-[13px]",
+function sizeClasses(sm: boolean, block: boolean) {
+  const layout = block ? "flex w-full box-border" : "inline-flex";
+  const pad = block
+    ? sm
+      ? "p-[10px]"
+      : "p-[14px]"
+    : sm
+      ? "px-[15px] py-[9px]"
+      : "px-5 py-[14px]";
+  const fs = sm ? "text-[13.5px]" : block ? "text-[14.5px]" : "text-[15px]";
+  return `${layout} ${pad} ${fs}`;
+}
+
+const VARIANT_BASE: Record<ButtonVariant, string> = {
+  primary: "bg-terra text-paper2",
+  secondary: "bg-field text-ink border-rule",
+  ghost: "bg-transparent text-ink2 border-rule",
 };
 
-const VARIANT: Record<ButtonVariant, string> = {
-  secondary:
-    "bg-field text-ink border-rule enabled:hover:border-terra enabled:hover:bg-paper2 disabled:opacity-40",
-  primary:
-    "bg-terra text-paper2 border-transparent enabled:hover:bg-terra-d disabled:opacity-40",
-  ghost:
-    "bg-transparent text-ink2 border-rule enabled:hover:bg-paper2 disabled:opacity-40",
-  // No dedicated danger color in substantiate's single-accent palette — a
-  // darker terracotta reads as emphasis without introducing a second hue.
-  danger:
-    "bg-terra-d text-paper2 border-transparent enabled:hover:bg-terra disabled:opacity-40",
+const VARIANT_HOVER: Record<ButtonVariant, string> = {
+  primary: "hover:bg-terra-d",
+  secondary: "hover:border-terra hover:bg-paper2",
+  ghost: "hover:bg-paper2 hover:text-ink",
 };
 
-/** Primary action / form button. See variants in the design's primitive kit. */
+const ICONS = { puzzle: PuzzleIcon, coffee: CoffeeIcon, folder: FolderIcon };
+
+/**
+ * Themed action button. Renders an `<a>` when `href` is set, else a `<button>`.
+ * Hover/press styles are omitted (not just guarded) while inert, so a disabled
+ * `<button>` — which still matches `:hover` in CSS — stays fully inert.
+ */
 export function Button({
-  variant = "secondary",
+  variant = "primary",
   sm = false,
+  block = false,
   busy = false,
   busyLabel,
-  children,
+  disabled = false,
+  icon,
+  sublabel,
+  href,
+  target = "_blank",
+  rel = "noopener",
+  type = "button",
+  onClick,
+  "aria-label": ariaLabel,
   className = "",
-  disabled,
-  ...rest
+  children,
 }: ButtonProps) {
+  const state = disabled
+    ? "opacity-40 pointer-events-none cursor-default"
+    : busy
+      ? "pointer-events-none cursor-default"
+      : `${VARIANT_HOVER[variant]} active:translate-y-px cursor-pointer`;
+
+  const cls = `${BASE} ${sizeClasses(sm, block)} ${VARIANT_BASE[variant]} ${state} ${className}`;
+
+  const label = busy && busyLabel ? busyLabel : children;
+  const Leading = icon && icon !== "arrow" ? ICONS[icon] : null;
+
+  const content = (
+    <>
+      {busy && <Spinner size={14} onAccent={variant === "primary"} />}
+      {Leading && <Leading size={18} />}
+      {sublabel != null ? (
+        <span className="flex flex-col text-left leading-[1.1]">
+          <span className="text-[10px] font-semibold tracking-[0.04em] opacity-[0.82]">
+            {sublabel}
+          </span>
+          <span className="text-[15px] font-bold">{label}</span>
+        </span>
+      ) : (
+        <span>{label}</span>
+      )}
+      {icon === "arrow" && <span className="text-[15px] leading-none">→</span>}
+    </>
+  );
+
+  if (href != null) {
+    return (
+      <a
+        href={href}
+        target={target}
+        rel={rel}
+        aria-label={ariaLabel}
+        aria-disabled={disabled || undefined}
+        aria-busy={busy || undefined}
+        onClick={onClick}
+        className={cls}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <button
-      {...rest}
-      // `busy` must NOT set `disabled`: the disabled-primary style is a light
-      // greyed surface (correct for a truly-disabled button), which would wash
-      // out the dark "Syncing…" pill. Keep it visually active; just block
+      type={type}
+      // `busy` must NOT set `disabled`: the disabled style is a washed-out
+      // surface (right for a truly-disabled button) that would dull an active
+      // "Saving…" pill. Keep it visually active; `pointer-events-none` blocks
       // re-clicks while the action runs.
       disabled={disabled}
       aria-busy={busy || undefined}
-      className={`${BASE} ${sm ? SIZE.sm : SIZE.default} ${VARIANT[variant]} ${busy ? "pointer-events-none cursor-default" : ""} ${className}`}
+      aria-label={ariaLabel}
+      onClick={onClick}
+      className={cls}
     >
-      {busy && <Spinner size={15} onAccent={variant === "primary"} />}
-      {busy && busyLabel ? busyLabel : children}
+      {content}
     </button>
   );
 }

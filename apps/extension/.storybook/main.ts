@@ -13,7 +13,7 @@ const config: StorybookConfig = {
   async viteFinal(cfg) {
     cfg.plugins = cfg.plugins ?? [];
     cfg.plugins.push(tailwindcss());
-    cfg.plugins.push(svgr()); // Mark imports mark.svg?react — see wxt.config.ts
+    cfg.plugins.push(svgr()); // Logo imports mark.svg?react — see wxt.config.ts
     cfg.resolve = cfg.resolve ?? {};
     cfg.resolve.alias = {
       ...(cfg.resolve.alias ?? {}),
