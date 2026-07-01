@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "./Button";
-import { CheckIcon } from "./icons";
+import { Stamp } from "./Stamp";
+import { Field } from "./Field";
 import { submitWeb3Forms, type Web3FormsPayload } from "./web3forms";
 
 interface ContactFormProps {
@@ -23,11 +24,6 @@ interface ContactFormProps {
 }
 
 type Status = "idle" | "sending" | "sent";
-
-// Shared input styling (email + textarea): field fill, hairline border that
-// turns terracotta on focus, control radius.
-const FIELD =
-  "w-full box-border bg-field border border-rule rounded-control px-[12px] py-[11px] text-[13px] font-medium font-sans text-ink outline-none transition-colors focus:border-terra";
 
 /**
  * Prop-driven contact form (landing "Ask a question" + "Report a bug" share it,
@@ -81,12 +77,7 @@ export function ContactForm({
     return (
       <div className={card} role="status">
         <div className="flex items-center gap-4">
-          <div className="flex flex-none items-center gap-[7px] rounded-[7px] border-2 border-terra px-[11px] pt-[6px] pb-[5px] text-terra rotate-[-7deg] outline outline-[1.5px] outline-terra outline-offset-[2.5px]">
-            <CheckIcon size={13} strokeWidth={3} />
-            <span className="font-mono text-[12px] font-medium tracking-[0.18em]">
-              SENT
-            </span>
-          </div>
+          <Stamp label="SENT" rotate={-7} className="flex-none" />
           <div className="flex-1">
             <div className="font-serif text-[22px] leading-[1.1]">{sentTitle}</div>
             <div className="mt-1 text-[13px] leading-[1.5] text-ink2">
@@ -120,21 +111,21 @@ export function ContactForm({
           </div>
         </div>
         <div className="min-w-[250px] flex-[1_1_280px]">
-          <input
+          <Field
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email (optional)"
             aria-label="Your email (optional)"
-            className={FIELD}
           />
-          <textarea
+          <Field
+            multiline
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
             placeholder={placeholder}
             aria-label="Message"
-            className={`${FIELD} mt-[9px] resize-none leading-[1.5]`}
+            className="mt-[9px]"
           />
           {error && (
             <div
