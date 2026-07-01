@@ -4,7 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import svgr from "vite-plugin-svgr";
 
 const config: StorybookConfig = {
-  stories: ["../src/**/*.stories.@(tsx|ts)"],
+  stories: [
+    "../src/**/*.stories.@(tsx|ts)",
+    "../../../packages/ui/src/**/*.stories.@(tsx|ts)",
+  ],
   addons: ["@storybook/addon-a11y"],
   framework: { name: "@storybook/react-vite", options: {} },
   async viteFinal(cfg) {

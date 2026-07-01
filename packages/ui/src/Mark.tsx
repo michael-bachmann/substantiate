@@ -19,7 +19,7 @@ export function BrandRow({ size = 22, className = "" }: { size?: number; classNa
   return (
     <div className={`flex items-center gap-[10px] ${className}`}>
       <Mark size={size} />
-      <span className="text-[20px] font-bold lowercase tracking-[-0.018em] text-text">
+      <span className="text-[20px] font-bold lowercase tracking-[-0.018em] text-ink">
         substantiate
       </span>
     </div>

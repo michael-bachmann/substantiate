@@ -4,11 +4,10 @@ import { BASE, SIZE, type ButtonVariant } from "./Button";
 // Same looks as <Button>, but with plain `hover:`/`active:` — an <a> is never
 // `:disabled`, so it needs neither the `enabled:` guard nor the disabled styles.
 const VARIANT: Record<ButtonVariant, string> = {
-  secondary: "bg-surface-2 text-text border-line-strong hover:bg-surface-3",
-  primary: "bg-ink text-ink-fg border-transparent hover:[filter:brightness(1.4)]",
-  ghost: "bg-transparent text-muted border-line hover:bg-surface hover:text-text",
-  danger:
-    "bg-[var(--btn-danger-bg)] border-[var(--btn-danger-line)] text-[var(--btn-danger-text)] hover:bg-[var(--btn-danger-bg-hover)]",
+  secondary: "bg-field text-ink border-rule hover:border-terra hover:bg-paper2",
+  primary: "bg-terra text-paper2 border-transparent hover:bg-terra-d",
+  ghost: "bg-transparent text-ink2 border-rule hover:bg-paper2",
+  danger: "bg-terra-d text-paper2 border-transparent hover:bg-terra",
 };
 
 interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {

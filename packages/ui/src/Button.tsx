@@ -12,7 +12,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   busyLabel?: ReactNode;
 }
 
-// Pill radius: we ship a light-only theme, so buttons are always full pills.
 // `enabled:` guards every hover/active effect so a disabled button is fully
 // inert — disabled <button>s still match :hover in CSS, so without the guard
 // they'd brighten/press. Holds for all variants below.
@@ -20,7 +19,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // (It can't reuse the `VARIANT` strings below: their `enabled:`/`disabled:`
 // guards never match an <a>, which has no enabled/disabled state.)
 export const BASE =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill border font-semibold tracking-[-0.005em] transition enabled:active:translate-y-px disabled:cursor-default";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold tracking-[-0.005em] transition enabled:active:translate-y-px disabled:cursor-default";
 
 export const SIZE = {
   default: "min-h-[44px] w-full px-4 py-[11px] text-[14.5px]",
@@ -29,15 +28,15 @@ export const SIZE = {
 
 const VARIANT: Record<ButtonVariant, string> = {
   secondary:
-    "bg-surface-2 text-text border-line-strong enabled:hover:bg-surface-3 disabled:opacity-55",
+    "bg-field text-ink border-rule enabled:hover:border-terra enabled:hover:bg-paper2 disabled:opacity-40",
   primary:
-    "bg-ink text-ink-fg border-transparent enabled:hover:[filter:brightness(1.4)] disabled:opacity-100 disabled:bg-surface-2 disabled:text-faint disabled:border-line",
+    "bg-terra text-paper2 border-transparent enabled:hover:bg-terra-d disabled:opacity-40",
   ghost:
-    "bg-transparent text-muted border-line enabled:hover:bg-surface enabled:hover:text-text disabled:opacity-55",
-  // Danger tints are their own tokens (not --danger-weak/-line, which are
-  // mixed over transparent — the button mixes over surface). See style.css.
+    "bg-transparent text-ink2 border-rule enabled:hover:bg-paper2 disabled:opacity-40",
+  // No dedicated danger color in substantiate's single-accent palette — a
+  // darker terracotta reads as emphasis without introducing a second hue.
   danger:
-    "bg-[var(--btn-danger-bg)] border-[var(--btn-danger-line)] text-[var(--btn-danger-text)] enabled:hover:bg-[var(--btn-danger-bg-hover)] disabled:opacity-55",
+    "bg-terra-d text-paper2 border-transparent enabled:hover:bg-terra disabled:opacity-40",
 };
 
 /** Primary action / form button. See variants in the design's primitive kit. */
