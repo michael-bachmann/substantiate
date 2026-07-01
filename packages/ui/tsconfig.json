@@ -10,5 +10,9 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Stories import @storybook/react-vite, which lives in the consuming apps, not
+  // this package. They're typechecked by each app's Storybook build; here we
+  // typecheck only the shared runtime source (so env.d.ts / svg.d.ts take effect).
+  "exclude": ["**/*.stories.tsx"]
 }

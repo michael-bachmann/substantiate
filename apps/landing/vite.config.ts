@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import svgr from "vite-plugin-svgr";
 
 // Static multi-page site for Cloudflare — `vite build` emits to dist/. svgr lets
-// the shared <Mark> import mark.svg?react (same setup as the extension). Two HTML
+// the shared <Logo> imports mark.svg?react (same setup as the extension). Two HTML
 // entries: the landing page (/) and the privacy policy. privacy.html (not
 // privacy/index.html) is deliberate — Cloudflare's default auto-trailing-slash
 // then serves a bare-file entry at /privacy with a 200, whereas a folder index

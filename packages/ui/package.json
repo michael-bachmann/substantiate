@@ -9,6 +9,9 @@
     "./links": "./src/links.ts",
     "./styles/theme.css": "./styles/theme.css"
   },
+  "scripts": {
+    "compile": "tsc --noEmit"
+  },
   "peerDependencies": {
     "react": "^19.0.0"
   },

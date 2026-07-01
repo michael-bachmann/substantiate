@@ -18,8 +18,8 @@ export function Spinner({ size = 15, onAccent = false, className = "" }: Spinner
         height: size,
         borderColor: onAccent
           ? "rgba(255,255,255,.4)"
-          : "color-mix(in oklab, var(--muted) 35%, transparent)",
-        borderTopColor: onAccent ? "#fff" : "var(--muted)",
+          : "color-mix(in oklab, var(--ink2) 35%, transparent)",
+        borderTopColor: onAccent ? "#fff" : "var(--ink2)",
       }}
     />
   );
