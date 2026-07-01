@@ -3,5 +3,7 @@ export * from "./Spinner";
 export * from "./Logo";
 export * from "./FaqItem";
 export * from "./faq-data";
+export * from "./ContactForm";
+export * from "./web3forms";
 export * from "./icons";
 export * from "./links";
