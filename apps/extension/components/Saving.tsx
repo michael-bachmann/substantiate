@@ -71,7 +71,9 @@ export function Saving({
         </div>
         <div className="mt-3 mb-1 flex-shrink-0 border-t border-dashed border-dash" />
 
-        <div className="min-h-0 flex-1 overflow-auto">
+        {/* pr gutter so the overlay scrollbar doesn't cover the amounts; the
+            subtotal row below matches it so the right edges stay aligned. */}
+        <div className="min-h-0 flex-1 overflow-auto pr-[10px]">
           {collecting ? (
             <div className="pt-1 font-mono text-[10.5px] text-ink3">
               Looking through your Amazon orders…
@@ -86,7 +88,7 @@ export function Saving({
 
         <div className="flex-shrink-0">
           <div className="mt-3 border-t border-dashed border-dash" />
-          <div className="flex items-baseline justify-between pt-[11px]">
+          <div className="flex items-baseline justify-between pt-[11px] pr-[10px]">
             <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink2">
               Subtotal so far
             </span>
