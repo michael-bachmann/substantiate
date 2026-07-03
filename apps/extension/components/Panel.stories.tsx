@@ -27,7 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// 2026 preselected → "Start saving" enabled (the app's default state).
+// 2026 preselected, disclosure closed → "Start saving" enabled (the app default).
 export const Default: Story = {};
 
 // Last year chosen instead.
@@ -36,16 +36,31 @@ export const Year2025: Story = {
   args: { initialYear: 2025 },
 };
 
-// Disclosure expanded; a year is still selected, so the CTA stays enabled and
-// the From/To stub shows em-dashes (PR 7 wires the calendar).
+// Disclosure expanded with no range yet: a year is still selected, so the CTA
+// stays enabled; the calendar shows an empty grid and "From" is the next pick.
 export const CustomRangeOpen: Story = {
-  name: "Custom range open",
+  name: "Custom range open (empty)",
   args: { initialRangeOpen: true },
 };
 
-// Range mode with no dates yet: year tiles deselect, the "Using" tag shows, and
-// the CTA is disabled until both ends are picked (PR 7).
-export const RangeDisabled: Story = {
-  name: "Range mode / CTA disabled",
-  args: { initialMode: "range", initialRangeOpen: true },
+// Start picked (from only): range mode, so year tiles deselect and "Using"
+// shows, but the CTA is disabled until the "To" end is picked next.
+export const RangeStartPicked: Story = {
+  name: "Range start picked",
+  args: {
+    initialMode: "range",
+    initialRangeOpen: true,
+    initialRange: { from: new Date(2026, 5, 8), to: undefined },
+  },
+};
+
+// Full range: both ends picked, the band renders, the "Using" tag shows, year
+// tiles are deselected, and the CTA is enabled.
+export const RangeFull: Story = {
+  name: "Range complete",
+  args: {
+    initialMode: "range",
+    initialRangeOpen: true,
+    initialRange: { from: new Date(2026, 5, 8), to: new Date(2026, 5, 22) },
+  },
 };

@@ -24,9 +24,14 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/newsreader": "^5.2.10",
     "@substantiate/ui": "workspace:*",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.475.0",
     "react": "^19.2.4",
+    "react-day-picker": "^9.13.0",
     "react-dom": "^19.2.4",
-    "remeda": "^2.39.0"
+    "remeda": "^2.39.0",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^10.4.6",
