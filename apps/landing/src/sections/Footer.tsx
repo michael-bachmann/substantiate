@@ -32,14 +32,8 @@ export function Footer({ onReportBug }: FooterProps) {
               >
                 Chrome Web Store
               </a>
-              <a
-                href={LINKS.firefox}
-                target="_blank"
-                rel="noopener"
-                className={LINK_CLASS}
-              >
-                Firefox Add-ons
-              </a>
+              {/* Firefox isn't shippable yet (no silent PDF path) — not a link. */}
+              <span className="text-[14px] text-ink3">Firefox Add-ons (soon)</span>
             </div>
           </div>
           <div>
