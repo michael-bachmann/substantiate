@@ -8,3 +8,11 @@
    node_modules), so Tailwind won't auto-scan it — point it at the package source
    explicitly so utility classes used in the shared components get generated. */
 @source "../../../../packages/ui/src";
+
+/* The panel is a full-height flex column (scrolling body + pinned footer), so
+   its ancestors must fill the side-panel window. */
+html,
+body,
+#root {
+  height: 100%;
+}
