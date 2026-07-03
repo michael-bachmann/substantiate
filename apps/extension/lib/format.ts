@@ -1,16 +1,24 @@
-import { capitalize } from "remeda";
+import { format } from "date-fns";
 
-/** Title-case a single word (relies on remeda's `capitalize`). */
-export function titleWord(word: string): string {
-  return capitalize(word.toLowerCase());
+/** Money as the design writes it: always two decimals, leading "$". */
+export function money(n: number): string {
+  return "$" + n.toFixed(2);
 }
 
-/** Title-case every whitespace-separated word in a phrase. */
-export function titleCase(phrase: string): string {
-  return phrase
-    .trim()
-    .split(/\s+/)
-    .filter((w) => w.length > 0)
-    .map(titleWord)
-    .join(" ");
+/** A single date the way the prototype's `fmtDate` renders it: "Jun 25, 2026". */
+export function fmtDate(d: Date): string {
+  return format(d, "MMM d, yyyy");
+}
+
+/**
+ * A period label for a custom range, collapsing a shared year onto the end
+ * (mirrors the prototype's `rangeShort`):
+ *   same year → "Jun 25 – Jul 2, 2026"
+ *   spanning  → "Jun 25, 2025 – Jul 2, 2026"
+ */
+export function rangeShort(from: Date, to: Date): string {
+  if (from.getFullYear() === to.getFullYear()) {
+    return `${format(from, "MMM d")} – ${fmtDate(to)}`;
+  }
+  return `${fmtDate(from)} – ${fmtDate(to)}`;
 }

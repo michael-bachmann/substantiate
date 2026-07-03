@@ -2,6 +2,9 @@ import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Logo } from "@substantiate/ui";
 import { Home } from "@/components/Home";
+import { Saving } from "@/components/Saving";
+import { Done } from "@/components/Done";
+import { useScan, type ScanView } from "@/components/useScan";
 
 interface PanelProps {
   /** Storybook seeds — production mounts with the defaults. */
@@ -10,26 +13,42 @@ interface PanelProps {
   initialRangeOpen?: boolean;
   /** Seed the calendar with a picked range (for stories). */
   initialRange?: DateRange;
+  /** Seed a static Saving/Done frame (stories) — the timer stays idle until a
+   *  real `startScan`, so seeded frames don't animate. */
+  initialView?: ScanView;
+  initialChecked?: number;
+  initialFound?: number;
 }
 
 /**
  * Side-panel shell: a full-height flex column with a header shared by every
- * view and a view area. Only Home ships now; `view` is seeded to "home" so
- * PR 8 can slot in the Saving/Done views without restructuring.
+ * view and a view area. `useScan` owns the scan lifecycle and drives which
+ * view renders (home → saving → done).
  */
 export default function Panel({
   initialMode = "year",
   initialYear = 2026,
   initialRangeOpen = false,
   initialRange,
+  initialView = "home",
+  initialChecked = 0,
+  initialFound = 0,
 }: PanelProps) {
-  const [view] = useState<"home" | "saving" | "done">("home");
   const [mode, setMode] = useState<"year" | "range">(initialMode);
   const [year, setYear] = useState<2026 | 2025>(initialYear);
   const [rangeOpen, setRangeOpen] = useState(initialRangeOpen);
   // The custom-range endpoints, as react-day-picker's DateRange. The calendar
   // owns the pick logic; picking flips `mode` to "range".
   const [range, setRange] = useState<DateRange | undefined>(initialRange);
+
+  const scan = useScan({
+    mode,
+    year,
+    range,
+    initialView,
+    initialChecked,
+    initialFound,
+  });
 
   // Year mode is always a valid period; a custom range needs both ends.
   const canStart = mode === "year" || (range?.from != null && range?.to != null);
@@ -54,7 +73,11 @@ export default function Panel({
   }
 
   function startScan() {
-    // PR 8: run the scan (transitions to the Saving view)
+    if (canStart) scan.start();
+  }
+
+  function showInFolder() {
+    // PR 10: reveal the saved downloads in the OS file manager.
   }
 
   return (
@@ -72,7 +95,7 @@ export default function Panel({
         </button>
       </header>
 
-      {view === "home" && (
+      {scan.view === "home" && (
         <Home
           mode={mode}
           year={year}
@@ -83,6 +106,32 @@ export default function Panel({
           onToggleRange={() => setRangeOpen((open) => !open)}
           onRangeChange={changeRange}
           onStart={startScan}
+        />
+      )}
+
+      {scan.view === "saving" && (
+        <Saving
+          periodShort={scan.periodShort}
+          checkedLabel={scan.checkedLabel}
+          progressPct={scan.progressPct}
+          foundCount={scan.foundCount}
+          rows={scan.rows}
+          subtotalStr={scan.subtotalStr}
+          currentOrderId={scan.currentOrderId}
+          onCancel={scan.cancel}
+        />
+      )}
+
+      {scan.view === "done" && (
+        <Done
+          periodShort={scan.periodShort}
+          subtotalStr={scan.subtotalStr}
+          foundCount={scan.foundCount}
+          rowsTop={scan.rowsTop}
+          hasMore={scan.hasMore}
+          moreCount={scan.moreCount}
+          onReset={scan.reset}
+          onShowInFolder={showInFolder}
         />
       )}
     </div>
