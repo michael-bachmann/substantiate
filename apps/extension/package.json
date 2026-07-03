@@ -46,7 +46,7 @@
     "happy-dom": "^20.10.6",
     "storybook": "^10.4.6",
     "tailwindcss": "^4.3.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9",
     "wxt": "^0.20.26"
