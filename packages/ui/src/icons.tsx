@@ -45,6 +45,26 @@ export function PuzzleIcon(props: IconProps) {
   );
 }
 
+export function StorefrontIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.6}>
+      <path d="M4.5 9.5h15V18a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1V9.5z" />
+      <path d="M4 9.5 5.5 5h13L20 9.5" />
+      <path d="M9.5 19v-4.5h5V19" />
+    </Icon>
+  );
+}
+
+export function InfoIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 2}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11.4v4.8" />
+      <path d="M12 7.8h.01" />
+    </Icon>
+  );
+}
+
 export function CoffeeIcon(props: IconProps) {
   return (
     <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>
