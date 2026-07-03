@@ -64,3 +64,23 @@ export const RangeFull: Story = {
     initialRange: { from: new Date(2026, 5, 8), to: new Date(2026, 5, 22) },
   },
 };
+
+// Saving, just underway: a couple of receipts found, progress bar barely moved.
+// Seeded state renders a static frame — the scan timer only runs on a real
+// "Start saving", so these Saving/Done stories don't animate.
+export const SavingEarly: Story = {
+  name: "Saving — early",
+  args: { initialView: "saving", initialChecked: 16, initialFound: 2 },
+};
+
+// Saving, about halfway: six receipts found, progress ~50%.
+export const SavingMid: Story = {
+  name: "Saving — mid",
+  args: { initialView: "saving", initialChecked: 60, initialFound: 6 },
+};
+
+// Done: all twelve saved, the SAVED stamp, the total, and "+ 9 more receipts".
+export const DoneAll: Story = {
+  name: "Done",
+  args: { initialView: "done", initialChecked: 120, initialFound: 12 },
+};

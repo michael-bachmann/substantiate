@@ -16,3 +16,32 @@ body,
 #root {
   height: 100%;
 }
+
+/* Saving-view motion: the pulsing "scanning" dot and the blinking read cursor.
+   Named distinctly from Tailwind's built-in `pulse` so we don't clobber it.
+   The reduced-motion block in @substantiate/ui's theme.css zeroes these. */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
