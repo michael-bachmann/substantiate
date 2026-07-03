@@ -1,11 +1,22 @@
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { Logo, type Web3FormsPayload } from "@substantiate/ui";
+import {
+  Logo,
+  StorefrontIcon,
+  AlertTriangleIcon,
+  type Web3FormsPayload,
+} from "@substantiate/ui";
 import { Home } from "@/components/Home";
 import { Saving } from "@/components/Saving";
 import { Done } from "@/components/Done";
+import { ScanNotice } from "@/components/ScanNotice";
 import { Help } from "@/components/Help";
-import { useScan, type ScanView } from "@/components/useScan";
+import { useScan, type ScanView, type ScanPhase } from "@/components/useScan";
+import { showDownloads } from "@/lib/messaging";
+import type { SavedRow } from "@/lib/scan";
+import type { ExportSummary } from "@/lib/types";
+
+const AMAZON_ORDERS_URL = "https://www.amazon.com/gp/css/order-history?ref=substantiate";
 
 interface PanelProps {
   /** Storybook seeds — production mounts with the defaults. */
@@ -14,15 +25,22 @@ interface PanelProps {
   initialRangeOpen?: boolean;
   /** Seed the calendar with a picked range (for stories). */
   initialRange?: DateRange;
-  /** Seed a static Saving/Done frame (stories) — the timer stays idle until a
-   *  real `startScan`, so seeded frames don't animate. */
+  /** Seed a static scan frame (stories) — the messaging seam stays idle until a
+   *  real `startScan`, so seeded frames don't animate or send messages. */
   initialView?: ScanView;
-  initialChecked?: number;
-  initialFound?: number;
+  initialPhase?: ScanPhase;
+  initialIndex?: number;
+  initialTotal?: number;
+  initialRows?: SavedRow[];
+  initialSubtotalCents?: number;
+  initialSummary?: ExportSummary;
+  initialError?: string;
   /** Seed the Help overlay open + its disclosures (stories). */
   initialHelpOpen?: boolean;
   initialReqOpen?: boolean;
   initialBugOpen?: boolean;
+  /** Chrome-only gate. Defaults to the WXT build target; stories force it. */
+  blocked?: boolean;
   /** Send seam forwarded to the Help disclosures (stories force sent/error). */
   submit?: (payload: Web3FormsPayload) => Promise<void>;
 }
@@ -30,7 +48,7 @@ interface PanelProps {
 /**
  * Side-panel shell: a full-height flex column with a header shared by every
  * view and a view area. `useScan` owns the scan lifecycle and drives which
- * view renders (home → saving → done).
+ * view renders (home → saving → done / signed-out / error).
  */
 export default function Panel({
   initialMode = "year",
@@ -38,11 +56,17 @@ export default function Panel({
   initialRangeOpen = false,
   initialRange,
   initialView = "home",
-  initialChecked = 0,
-  initialFound = 0,
+  initialPhase = "collecting",
+  initialIndex = 0,
+  initialTotal = 0,
+  initialRows = [],
+  initialSubtotalCents = 0,
+  initialSummary,
+  initialError = "",
   initialHelpOpen = false,
   initialReqOpen = false,
   initialBugOpen = false,
+  blocked = Boolean(import.meta.env.FIREFOX),
   submit,
 }: PanelProps) {
   const [helpOpen, setHelpOpen] = useState(initialHelpOpen);
@@ -58,8 +82,13 @@ export default function Panel({
     year,
     range,
     initialView,
-    initialChecked,
-    initialFound,
+    initialPhase,
+    initialIndex,
+    initialTotal,
+    initialRows,
+    initialSubtotalCents,
+    initialSummary,
+    initialError,
   });
 
   // Year mode is always a valid period; a custom range needs both ends.
@@ -84,17 +113,14 @@ export default function Panel({
     setHelpOpen(true);
   }
 
-  function startScan() {
-    if (canStart) scan.start();
-  }
-
-  function showInFolder() {
-    // PR 10: reveal the saved downloads in the OS file manager.
+  function handleStart() {
+    // Firefox has no walk yet; the button is disabled, but guard anyway.
+    if (canStart && !blocked) scan.start();
   }
 
   return (
     <div className="relative flex h-full flex-col bg-paper text-ink">
-      {/* Header — reused by the Saving/Done views and the Help overlay later. */}
+      {/* Header — reused by every view and the Help overlay. */}
       <header className="flex flex-shrink-0 items-center gap-[11px] border-b-[1.5px] border-dashed border-dash px-4 py-[14px]">
         <Logo />
         <button
@@ -114,36 +140,59 @@ export default function Panel({
           rangeOpen={rangeOpen}
           range={range}
           canStart={canStart}
+          blocked={blocked}
           onSelectYear={selectYear}
           onToggleRange={() => setRangeOpen((open) => !open)}
           onRangeChange={changeRange}
-          onStart={startScan}
+          onStart={handleStart}
         />
       )}
 
       {scan.view === "saving" && (
         <Saving
           periodShort={scan.periodShort}
-          checkedLabel={scan.checkedLabel}
-          progressPct={scan.progressPct}
-          foundCount={scan.foundCount}
+          phase={scan.phase}
+          index={scan.index}
+          total={scan.total}
           rows={scan.rows}
           subtotalStr={scan.subtotalStr}
-          currentOrderId={scan.currentOrderId}
           onCancel={scan.cancel}
         />
       )}
 
-      {scan.view === "done" && (
+      {scan.view === "done" && scan.done && (
         <Done
           periodShort={scan.periodShort}
-          subtotalStr={scan.subtotalStr}
-          foundCount={scan.foundCount}
-          rowsTop={scan.rowsTop}
-          hasMore={scan.hasMore}
-          moreCount={scan.moreCount}
+          subtotalStr={scan.done.subtotalStr}
+          foundCount={scan.done.foundCount}
+          rowsTop={scan.done.rowsTop}
+          hasMore={scan.done.hasMore}
+          moreCount={scan.done.moreCount}
+          skippedAlreadySaved={scan.done.skippedAlreadySaved}
+          errorCount={scan.done.errorCount}
+          partial={scan.done.partial}
           onReset={scan.reset}
-          onShowInFolder={showInFolder}
+          onShowInFolder={showDownloads}
+        />
+      )}
+
+      {scan.view === "signedout" && (
+        <ScanNotice
+          icon={<StorefrontIcon size={40} />}
+          title="Sign in to Amazon"
+          body="We couldn't reach your orders. Open Amazon, sign in, then try again."
+          primary={{ label: "Open Amazon", href: AMAZON_ORDERS_URL }}
+          secondary={{ label: "Try again", onClick: scan.start }}
+        />
+      )}
+
+      {scan.view === "error" && (
+        <ScanNotice
+          icon={<AlertTriangleIcon size={40} />}
+          title="Something went wrong"
+          body={scan.errorMessage || "We hit a snag reaching Amazon. Try again in a moment."}
+          primary={{ label: "Try again", onClick: scan.start }}
+          secondary={{ label: "Back", onClick: scan.reset }}
         />
       )}
 

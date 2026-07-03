@@ -39,9 +39,22 @@ body,
     opacity: 0;
   }
 }
+/* The indeterminate progress segment slid across while the collecting phase
+   pages the order list (count unknown, so no determinate fill). */
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(420%);
+  }
+}
 .animate-pulse-dot {
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
 .animate-blink {
   animation: blink 1s step-end infinite;
+}
+.animate-indeterminate {
+  animation: indeterminate 1.2s ease-in-out infinite;
 }

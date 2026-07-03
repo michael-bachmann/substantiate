@@ -30,6 +30,11 @@ export async function cancelScan(): Promise<void> {
   await browser.runtime.sendMessage({ type: "CANCEL_SCAN" });
 }
 
+/** Reveal the saved receipts in the OS file manager (Chrome only). */
+export async function showDownloads(): Promise<void> {
+  await browser.runtime.sendMessage({ type: "SHOW_DOWNLOADS" });
+}
+
 /** Subscribe to scan progress broadcasts. Returns an unsubscribe fn. */
 export function onScanProgress(cb: (e: ExportProgress) => void): () => void {
   const listener = (msg: unknown) => {

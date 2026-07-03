@@ -19,6 +19,8 @@ export interface HomeProps {
   range: DateRange | undefined;
   /** Year mode selected, or a complete custom range. */
   canStart: boolean;
+  /** Chrome-only feature is unavailable here (Firefox) — disable Start. */
+  blocked?: boolean;
   onSelectYear: (year: 2026 | 2025) => void;
   onToggleRange: () => void;
   onRangeChange: (range: DateRange | undefined) => void;
@@ -36,6 +38,7 @@ export function Home({
   rangeOpen,
   range,
   canStart,
+  blocked = false,
   onSelectYear,
   onToggleRange,
   onRangeChange,
@@ -149,13 +152,15 @@ export function Home({
           variant="primary"
           block
           icon="arrow"
-          disabled={!canStart}
+          disabled={!canStart || blocked}
           onClick={onStart}
         >
           Start saving
         </Button>
         <div className="mt-[10px] text-center text-[11.5px] leading-[1.5] text-ink3">
-          Saved to your computer. Nothing is ever uploaded.
+          {blocked
+            ? "substantiate saves receipts on desktop Chrome. Firefox support is coming soon."
+            : "Saved to your computer. Nothing is ever uploaded."}
         </div>
       </div>
     </div>
