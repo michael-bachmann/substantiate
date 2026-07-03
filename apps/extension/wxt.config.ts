@@ -33,14 +33,18 @@ export default defineConfig({
           },
         }
       : {}),
-    // `sidePanel` is Chrome-only; including it on Firefox triggers an "Unknown
-    // permission" warning. Firefox uses sidebar_action (auto-generated from the
-    // sidepanel entrypoint) instead.
+    // `sidePanel` and `debugger` are Chrome-only; including them on Firefox
+    // triggers an "Unknown permission" warning. Firefox uses sidebar_action
+    // (auto-generated from the sidepanel entrypoint) instead, and has no
+    // debugger equivalent (the print-to-PDF path is Chrome-only).
     permissions: [
       "storage",
       "tabs",
-      ...(browser === "firefox" ? [] : ["sidePanel"]),
+      "downloads",
+      ...(browser === "firefox" ? [] : ["sidePanel", "debugger"]),
     ],
+    // Amazon order scraping runs against amazon.com pages.
+    host_permissions: ["*://*.amazon.com/*"],
   }),
   vite: () => ({
     plugins: [
