@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import {
   Button,
   Eyebrow,
@@ -6,19 +8,20 @@ import {
   StorefrontIcon,
   InfoIcon,
 } from "@substantiate/ui";
+import { Calendar } from "@/components/ui/calendar";
 
 export interface HomeProps {
   mode: "year" | "range";
   year: 2026 | 2025;
   /** Whether the custom-range disclosure is expanded. */
   rangeOpen: boolean;
-  /** ISO range endpoints — empty until PR 7 mounts the calendar. */
-  rangeFrom: string;
-  rangeTo: string;
+  /** The picked custom range, or undefined until the user selects one. */
+  range: DateRange | undefined;
   /** Year mode selected, or a complete custom range. */
   canStart: boolean;
   onSelectYear: (year: 2026 | 2025) => void;
   onToggleRange: () => void;
+  onRangeChange: (range: DateRange | undefined) => void;
   onStart: () => void;
 }
 
@@ -31,13 +34,18 @@ export function Home({
   mode,
   year,
   rangeOpen,
-  rangeFrom,
-  rangeTo,
+  range,
   canStart,
   onSelectYear,
   onToggleRange,
+  onRangeChange,
   onStart,
 }: HomeProps) {
+  // Which endpoint the next tap sets: "from" when there's no start or the range
+  // is already complete (a tap starts over), otherwise "to". Its box gets the
+  // terracotta border. Mirrors the prototype's fromBorder/toBorder logic.
+  const nextEnd = !range?.from || (range.from && range.to) ? "from" : "to";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {/* Scrolling body */}
@@ -86,8 +94,8 @@ export function Home({
           />
         </div>
 
-        {/* Custom-range disclosure. The calendar itself lands in PR 7 — for now
-            the expanded body is a static From/To stub so the seam is visible. */}
+        {/* Custom-range disclosure: From/To summary boxes over an inline themed
+            range calendar. Picking a range flips Panel to "range" mode. */}
         <div className="mt-2 overflow-hidden rounded-control border border-rule bg-paper2">
           <button
             type="button"
@@ -109,10 +117,26 @@ export function Home({
           </button>
           {rangeOpen && (
             <div className="border-t border-dashed border-dash p-3">
-              {/* PR 7: mount the themed range calendar here */}
               <div className="flex gap-2">
-                <FromToBox label="From" value={rangeFrom} />
-                <FromToBox label="To" value={rangeTo} />
+                <FromToBox
+                  label="From"
+                  date={range?.from}
+                  active={nextEnd === "from"}
+                />
+                <FromToBox
+                  label="To"
+                  date={range?.to}
+                  active={nextEnd === "to"}
+                />
+              </div>
+              <div className="mt-3 flex justify-center">
+                <Calendar
+                  mode="range"
+                  numberOfMonths={1}
+                  defaultMonth={range?.from}
+                  selected={range}
+                  onSelect={onRangeChange}
+                />
               </div>
             </div>
           )}
@@ -180,15 +204,32 @@ function YearTile({
   );
 }
 
-/** A read-only From/To field box for the custom-range stub (PR 7 makes it live). */
-function FromToBox({ label, value }: { label: string; value: string }) {
+/**
+ * A read-only From/To field box reflecting the picked endpoint. `active` marks
+ * the endpoint the next calendar tap will set (terracotta border).
+ */
+function FromToBox({
+  label,
+  date,
+  active,
+}: {
+  label: string;
+  date: Date | undefined;
+  active: boolean;
+}) {
   return (
-    <div className="flex-1 rounded-control border border-rule bg-field px-[10px] py-[7px]">
+    <div
+      className={`flex-1 rounded-control border bg-field px-[10px] py-[7px] ${
+        active ? "border-terra" : "border-rule"
+      }`}
+    >
       <div className="font-mono text-[9px] font-medium uppercase tracking-[0.14em] text-ink3">
         {label}
       </div>
-      <div className="mt-[2px] font-mono text-[12px] text-ink3">
-        {value || "—"}
+      <div
+        className={`mt-[2px] font-mono text-[12px] ${date ? "text-ink" : "text-ink3"}`}
+      >
+        {date ? format(date, "MMM d, yyyy") : "—"}
       </div>
     </div>
   );

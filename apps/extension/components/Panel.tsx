@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { Logo } from "@substantiate/ui";
 import { Home } from "@/components/Home";
 
@@ -7,6 +8,8 @@ interface PanelProps {
   initialMode?: "year" | "range";
   initialYear?: 2026 | 2025;
   initialRangeOpen?: boolean;
+  /** Seed the calendar with a picked range (for stories). */
+  initialRange?: DateRange;
 }
 
 /**
@@ -18,17 +21,28 @@ export default function Panel({
   initialMode = "year",
   initialYear = 2026,
   initialRangeOpen = false,
+  initialRange,
 }: PanelProps) {
   const [view] = useState<"home" | "saving" | "done">("home");
   const [mode, setMode] = useState<"year" | "range">(initialMode);
   const [year, setYear] = useState<2026 | 2025>(initialYear);
   const [rangeOpen, setRangeOpen] = useState(initialRangeOpen);
-  // Range endpoints — PR 7's calendar fills these (and flips `mode` to "range").
-  const [rangeFrom] = useState("");
-  const [rangeTo] = useState("");
+  // The custom-range endpoints, as react-day-picker's DateRange. The calendar
+  // owns the pick logic; picking flips `mode` to "range".
+  const [range, setRange] = useState<DateRange | undefined>(initialRange);
 
   // Year mode is always a valid period; a custom range needs both ends.
-  const canStart = mode === "year" || (rangeFrom !== "" && rangeTo !== "");
+  const canStart = mode === "year" || (range?.from != null && range?.to != null);
+
+  // A pick (react-day-picker calls this only on user selection) activates range
+  // mode, which deselects the year tiles and shows the "Using" tag. Re-clicking
+  // a lone start day deselects it (next=undefined); ignore that so we don't
+  // strand range mode over an empty range — pick a new start or a year instead.
+  function changeRange(next: DateRange | undefined) {
+    if (!next) return;
+    setRange(next);
+    setMode("range");
+  }
 
   function selectYear(next: 2026 | 2025) {
     setYear(next);
@@ -63,11 +77,11 @@ export default function Panel({
           mode={mode}
           year={year}
           rangeOpen={rangeOpen}
-          rangeFrom={rangeFrom}
-          rangeTo={rangeTo}
+          range={range}
           canStart={canStart}
           onSelectYear={selectYear}
           onToggleRange={() => setRangeOpen((open) => !open)}
+          onRangeChange={changeRange}
           onStart={startScan}
         />
       )}
