@@ -9,7 +9,7 @@ export function Hero() {
     <section className="mx-auto flex max-w-[1080px] flex-wrap items-center gap-[52px] px-8 pb-14 pt-16">
       <div className="min-w-[300px] flex-[1_1_380px]">
         <Eyebrow tone="accent" size={11}>
-          Chrome &amp; Firefox extension
+          Chrome extension
         </Eyebrow>
         <h1 className="mt-4 font-serif text-[54px] font-medium leading-[1.04]">
           Stop saving FSA receipts by hand.
@@ -29,13 +29,9 @@ export function Hero() {
           >
             Chrome
           </Button>
-          <Button
-            href={LINKS.firefox}
-            variant="secondary"
-            icon="puzzle"
-            iconClassName="text-terra"
-            sublabel="Free · Add to"
-          >
+          {/* Firefox needs a silent print-to-PDF path Firefox doesn't offer yet,
+              so it's not shippable — show it as coming soon, not a live install. */}
+          <Button variant="secondary" icon="puzzle" disabled sublabel="Coming soon">
             Firefox
           </Button>
         </div>
