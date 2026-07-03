@@ -84,3 +84,57 @@ export const DoneAll: Story = {
   name: "Done",
   args: { initialView: "done", initialChecked: 120, initialFound: 12 },
 };
+
+// ── Help & about overlay ──────────────────────────────────────────────────
+// This Storybook has no @storybook/test, so the play function drives the form
+// with plain DOM APIs. React ignores a raw `el.value =`, so we call the native
+// value setter and dispatch an `input` event to trip onChange (as ContactForm).
+function setValue(el: HTMLInputElement | HTMLTextAreaElement, value: string) {
+  const proto =
+    el instanceof HTMLTextAreaElement
+      ? HTMLTextAreaElement.prototype
+      : HTMLInputElement.prototype;
+  const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+  setter?.call(el, value);
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+}
+const tick = (ms = 60) => new Promise((r) => setTimeout(r, ms));
+
+// Help opened: coffee card, first FAQ expanded, both disclosures collapsed.
+export const HelpOpen: Story = {
+  name: "Help — open",
+  args: { initialHelpOpen: true },
+};
+
+// "Request a retailer" expanded to its inline form.
+export const HelpRequestOpen: Story = {
+  name: "Help — request a retailer",
+  args: { initialHelpOpen: true, initialReqOpen: true },
+};
+
+// "Report an issue" expanded to its inline form (multiline).
+export const HelpReportOpen: Story = {
+  name: "Help — report an issue",
+  args: { initialHelpOpen: true, initialBugOpen: true },
+};
+
+// Sent confirmation: an injected resolving submit + a play function that fills
+// the retailer field and submits → the inline "Request received." state.
+export const HelpRequestSent: Story = {
+  name: "Help — request sent",
+  args: {
+    initialHelpOpen: true,
+    initialReqOpen: true,
+    submit: () => Promise.resolve(),
+  },
+  play: async ({ canvasElement }) => {
+    const input = canvasElement.querySelector("input") as HTMLInputElement;
+    setValue(input, "CVS");
+    await tick();
+    const submit = canvasElement.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+    submit.click();
+    await tick();
+  },
+};

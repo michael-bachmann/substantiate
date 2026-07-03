@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { Logo } from "@substantiate/ui";
+import { Logo, type Web3FormsPayload } from "@substantiate/ui";
 import { Home } from "@/components/Home";
 import { Saving } from "@/components/Saving";
 import { Done } from "@/components/Done";
+import { Help } from "@/components/Help";
 import { useScan, type ScanView } from "@/components/useScan";
 
 interface PanelProps {
@@ -18,6 +19,12 @@ interface PanelProps {
   initialView?: ScanView;
   initialChecked?: number;
   initialFound?: number;
+  /** Seed the Help overlay open + its disclosures (stories). */
+  initialHelpOpen?: boolean;
+  initialReqOpen?: boolean;
+  initialBugOpen?: boolean;
+  /** Send seam forwarded to the Help disclosures (stories force sent/error). */
+  submit?: (payload: Web3FormsPayload) => Promise<void>;
 }
 
 /**
@@ -33,7 +40,12 @@ export default function Panel({
   initialView = "home",
   initialChecked = 0,
   initialFound = 0,
+  initialHelpOpen = false,
+  initialReqOpen = false,
+  initialBugOpen = false,
+  submit,
 }: PanelProps) {
+  const [helpOpen, setHelpOpen] = useState(initialHelpOpen);
   const [mode, setMode] = useState<"year" | "range">(initialMode);
   const [year, setYear] = useState<2026 | 2025>(initialYear);
   const [rangeOpen, setRangeOpen] = useState(initialRangeOpen);
@@ -69,7 +81,7 @@ export default function Panel({
   }
 
   function openHelp() {
-    // PR 9: Help overlay
+    setHelpOpen(true);
   }
 
   function startScan() {
@@ -81,7 +93,7 @@ export default function Panel({
   }
 
   return (
-    <div className="flex h-full flex-col bg-paper text-ink">
+    <div className="relative flex h-full flex-col bg-paper text-ink">
       {/* Header — reused by the Saving/Done views and the Help overlay later. */}
       <header className="flex flex-shrink-0 items-center gap-[11px] border-b-[1.5px] border-dashed border-dash px-4 py-[14px]">
         <Logo />
@@ -132,6 +144,16 @@ export default function Panel({
           moreCount={scan.moreCount}
           onReset={scan.reset}
           onShowInFolder={showInFolder}
+        />
+      )}
+
+      {/* Help & about — an absolute layer covering the current view. */}
+      {helpOpen && (
+        <Help
+          onClose={() => setHelpOpen(false)}
+          initialReqOpen={initialReqOpen}
+          initialBugOpen={initialBugOpen}
+          submit={submit}
         />
       )}
     </div>
