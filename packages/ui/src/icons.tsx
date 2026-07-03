@@ -70,3 +70,59 @@ export function CheckIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.6}>
+      <rect x="4" y="5.5" width="16" height="15" rx="2" />
+      <path d="M4 9.5h16" />
+      <path d="M8 3.5v4M16 3.5v4" />
+    </Icon>
+  );
+}
+
+export function FileCheckIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.6}>
+      <path d="M6.5 4H13L17.5 8.5V20H6.5Z" />
+      <path d="M13 4V8.5H17.5" />
+      <path d="M9 13.6 11 15.6 15 11.2" />
+    </Icon>
+  );
+}
+
+export function UploadIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.6}>
+      <path d="M12 15V4M12 4 8.5 7.5M12 4l3.5 3.5" />
+      <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+    </Icon>
+  );
+}
+
+export function ShieldCheckIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>
+      <path d="M12 3.5 19 6v5c0 4-3 7-7 8.2-4-1.2-7-4.2-7-8.2V6l7-2.5z" />
+      <path d="M9.2 12l2 2 3.6-4" />
+    </Icon>
+  );
+}
+
+export function LockIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>
+      <rect x="5" y="10.5" width="14" height="9.5" rx="2" />
+      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+    </Icon>
+  );
+}
+
+export function HandShieldIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>
+      <path d="M12 21c4-1.2 7-5 7-9V6l-7-2.5" />
+      <path d="M12 21c-4-1.2-7-5-7-9V6l7-2.5" />
+    </Icon>
+  );
+}
