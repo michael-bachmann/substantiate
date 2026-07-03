@@ -156,6 +156,16 @@ export function AlertTriangleIcon(props: IconProps) {
   );
 }
 
+export function ExternalLinkIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.9}>
+      <path d="M14 5h5v5" />
+      <path d="M19 5l-7 7" />
+      <path d="M12 6H6v12h12v-6" />
+    </Icon>
+  );
+}
+
 export function HandShieldIcon(props: IconProps) {
   return (
     <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>
