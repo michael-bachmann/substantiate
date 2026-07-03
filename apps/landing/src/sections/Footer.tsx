@@ -3,8 +3,13 @@ import { Logo, Eyebrow, LINKS } from "@substantiate/ui";
 const LINK_CLASS =
   "text-[14px] text-ink2 no-underline transition-colors hover:text-terra-d";
 
+interface FooterProps {
+  /** Opens the Bug-report modal (lifted to App). */
+  onReportBug: () => void;
+}
+
 /** Site footer: brand + tagline, two link columns, and a mono bottom bar. */
-export function Footer() {
+export function Footer({ onReportBug }: FooterProps) {
   return (
     <footer className="bg-paper">
       <div className="mx-auto flex max-w-[1080px] flex-wrap gap-9 px-8 pb-[34px] pt-[44px]">
@@ -51,8 +56,11 @@ export function Footer() {
               >
                 GitHub
               </a>
-              {/* Inert placeholder — PR 5 wires this to the bug-report modal. */}
-              <button type="button" className={`text-left ${LINK_CLASS}`}>
+              <button
+                type="button"
+                onClick={onReportBug}
+                className={`text-left ${LINK_CLASS}`}
+              >
                 Report a bug
               </button>
               <a

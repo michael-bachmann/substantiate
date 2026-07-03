@@ -18,4 +18,34 @@ html {
   }
 }
 
+/* Modal enter/exit fades — referenced from the Dialog primitive via Radix's
+   data-state. Kept subtle to match the design's restrained motion. */
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes modal-overlay-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes modal-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.98);
+  }
+}
+@keyframes modal-content-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-fade {
+    animation: none !important;
+  }
+}
+
 /* The keyboard focus ring (terracotta) is defined once in the shared theme base. */

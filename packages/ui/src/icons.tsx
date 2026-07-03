@@ -118,6 +118,24 @@ export function LockIcon(props: IconProps) {
   );
 }
 
+export function MessageIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.7}>
+      <path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H9l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5Z" />
+    </Icon>
+  );
+}
+
+export function AlertTriangleIcon(props: IconProps) {
+  return (
+    <Icon {...props} strokeWidth={props.strokeWidth ?? 1.7}>
+      <path d="M12 4.5 3.5 19h17L12 4.5z" />
+      <path d="M12 10v4" />
+      <path d="M12 16.6h.01" />
+    </Icon>
+  );
+}
+
 export function HandShieldIcon(props: IconProps) {
   return (
     <Icon {...props} strokeWidth={props.strokeWidth ?? 1.8}>

@@ -1,9 +1,21 @@
 import type { MouseEventHandler, ReactNode } from "react";
 import { Spinner } from "./Spinner";
-import { PuzzleIcon, CoffeeIcon, FolderIcon } from "./icons";
+import {
+  PuzzleIcon,
+  CoffeeIcon,
+  FolderIcon,
+  MessageIcon,
+  AlertTriangleIcon,
+} from "./icons";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
-export type ButtonIcon = "puzzle" | "coffee" | "folder" | "arrow";
+export type ButtonIcon =
+  | "puzzle"
+  | "coffee"
+  | "folder"
+  | "message"
+  | "alert"
+  | "arrow";
 
 interface ButtonProps {
   variant?: ButtonVariant;
@@ -63,7 +75,13 @@ const VARIANT_HOVER: Record<ButtonVariant, string> = {
   ghost: "hover:bg-paper2 hover:text-ink",
 };
 
-const ICONS = { puzzle: PuzzleIcon, coffee: CoffeeIcon, folder: FolderIcon };
+const ICONS = {
+  puzzle: PuzzleIcon,
+  coffee: CoffeeIcon,
+  folder: FolderIcon,
+  message: MessageIcon,
+  alert: AlertTriangleIcon,
+};
 
 /**
  * Themed action button. Renders an `<a>` when `href` is set, else a `<button>`.
