@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { Eyebrow, FaqItem, FAQS } from "@substantiate/ui";
+import { Button, Eyebrow, FaqItem, FAQS } from "@substantiate/ui";
+
+interface FaqProps {
+  /** Opens the Contact modal (lifted to App). */
+  onAskQuestion: () => void;
+  /** Opens the Bug-report modal (lifted to App). */
+  onReportBug: () => void;
+}
 
 /**
  * FAQ accordion — one item open at a time (index in state; first open by
- * default; clicking the open item closes it). PR 5 appends the "Ask a
- * question" / "Report a bug" link buttons + modals below the accordion.
+ * default; clicking the open item closes it). Below it, two secondary link
+ * buttons open the Contact / Bug modals (state lives in App).
  */
-export function Faq() {
+export function Faq({ onAskQuestion, onReportBug }: FaqProps) {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
@@ -27,6 +34,24 @@ export function Faq() {
             onToggle={() => setOpenIndex(i === openIndex ? -1 : i)}
           />
         ))}
+        <div className="mt-[10px] flex flex-wrap justify-center gap-3 border-t border-dashed border-dash pt-6">
+          <Button
+            variant="secondary"
+            icon="message"
+            iconClassName="text-terra"
+            onClick={onAskQuestion}
+          >
+            Ask a question
+          </Button>
+          <Button
+            variant="secondary"
+            icon="alert"
+            iconClassName="text-terra"
+            onClick={onReportBug}
+          >
+            Report a bug
+          </Button>
+        </div>
       </div>
     </section>
   );

@@ -27,12 +27,18 @@ export const PrivacySection: Story = {
   name: "Privacy",
   render: () => <Privacy />,
 };
-export const FaqSection: Story = { name: "Faq", render: () => <Faq /> };
+export const FaqSection: Story = {
+  name: "Faq",
+  render: () => <Faq onAskQuestion={() => {}} onReportBug={() => {}} />,
+};
 export const SupportSection: Story = {
   name: "Support",
   render: () => <Support />,
 };
-export const FooterSection: Story = { name: "Footer", render: () => <Footer /> };
+export const FooterSection: Story = {
+  name: "Footer",
+  render: () => <Footer onReportBug={() => {}} />,
+};
 
 /** The whole page assembled, top to bottom. */
 export const FullPage: Story = { name: "Full page", render: () => <App /> };
