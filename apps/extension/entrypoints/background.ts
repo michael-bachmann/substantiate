@@ -43,6 +43,13 @@ export default defineBackground(() => {
       return;
     }
 
+    if (type === "SHOW_DOWNLOADS") {
+      // Reveal the saved receipts in the OS file manager. Chrome-only —
+      // Firefox has no downloads.showDefaultFolder, so guard rather than throw.
+      if (chrome.downloads?.showDefaultFolder) chrome.downloads.showDefaultFolder();
+      return;
+    }
+
     // Anything else (including PAGE_RESULT — handled by the tabs.ts listener) is
     // not ours; don't respond so other listeners can.
     return;

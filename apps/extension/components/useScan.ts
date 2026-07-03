@@ -1,146 +1,146 @@
 import { useEffect, useRef, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { money, rangeShort } from "@/lib/format";
+import { periodRange, savedRow, summaryToDone, type SavedRow } from "@/lib/scan";
+import type { ExportSummary } from "@/lib/types";
+import { startScan, cancelScan, onScanProgress } from "@/lib/messaging";
 
-export type ScanView = "home" | "saving" | "done";
-
-interface Receipt {
-  /** Display date, e.g. "Jun 25". */
-  d: string;
-  /** Month-day used in the saved filename, e.g. "06-25". */
-  md: string;
-  /** Eligible amount. */
-  a: number;
-}
-
-// ── MOCK ────────────────────────────────────────────────────────────────
-// A fixed catalog of eligible receipts + the `checked` counts at which each
-// one is "found" stand in for real Amazon order-history walking. PR 10
-// replaces this catalog + timer with the live scanner; the derived values and
-// view transitions below stay as-is.
-const CATALOG: Receipt[] = [
-  { d: "Jun 25", md: "06-25", a: 54.86 },
-  { d: "Jun 18", md: "06-18", a: 18.2 },
-  { d: "Jun 11", md: "06-11", a: 129.4 },
-  { d: "Jun 02", md: "06-02", a: 42.99 },
-  { d: "May 21", md: "05-21", a: 23.1 },
-  { d: "May 09", md: "05-09", a: 67.5 },
-  { d: "Apr 27", md: "04-27", a: 15.99 },
-  { d: "Apr 14", md: "04-14", a: 88.0 },
-  { d: "Mar 30", md: "03-30", a: 31.25 },
-  { d: "Mar 12", md: "03-12", a: 49.99 },
-  { d: "Feb 20", md: "02-20", a: 12.4 },
-  { d: "Jan 16", md: "01-16", a: 106.9 },
-];
-const THRESHOLDS = [6, 14, 22, 30, 44, 54, 66, 78, 90, 100, 108, 116];
-const TARGET = 120;
-const TICK_MS = 120;
-// ────────────────────────────────────────────────────────────────────────
-
-interface ScanState {
-  view: ScanView;
-  checked: number;
-  /** How many of CATALOG have been revealed so far. */
-  foundCount: number;
-}
+export type ScanView = "home" | "saving" | "done" | "signedout" | "error";
+export type ScanPhase = "collecting" | "exporting";
 
 interface UseScanArgs {
   mode: "year" | "range";
   year: number;
   range: DateRange | undefined;
-  /** Story seeds — a real mount uses the defaults and never runs the timer
-   *  until `start()` is called. */
+  /** Story seeds — a real mount uses the defaults and never sends a message
+   *  until `start()` is called, so seeded frames render statically. */
   initialView?: ScanView;
-  initialChecked?: number;
-  initialFound?: number;
+  initialPhase?: ScanPhase;
+  initialIndex?: number;
+  initialTotal?: number;
+  initialRows?: SavedRow[];
+  initialSubtotalCents?: number;
+  /** Seeds the Done / signed-out views from a finished summary (stories). */
+  initialSummary?: ExportSummary;
+  initialError?: string;
 }
 
 /**
- * Owns the mocked scan: a ~120ms timer that advances `checked` two at a time,
- * revealing receipts as `checked` crosses each threshold, then flips to the
- * Done view at the target. Derives every value the Saving/Done views render.
- * The timer only ever runs after a real `start()` — seeded state renders a
- * static frame for stories.
+ * Drives the side panel over the background message bus. `start()` kicks off the
+ * real Amazon export walk and streams its two-phase progress into the Saving
+ * view; when the walk resolves it maps the summary to a terminal view
+ * (done / signed-out / error). The messaging seam is only touched on a real
+ * `start()`/`cancel()` — seeded state renders a static frame for stories.
  */
 export function useScan({
   mode,
   year,
   range,
   initialView = "home",
-  initialChecked = 0,
-  initialFound = 0,
+  initialPhase = "collecting",
+  initialIndex = 0,
+  initialTotal = 0,
+  initialRows = [],
+  initialSubtotalCents = 0,
+  initialSummary,
+  initialError = "",
 }: UseScanArgs) {
-  const [state, setState] = useState<ScanState>({
-    view: initialView,
-    checked: initialChecked,
-    foundCount: initialFound,
-  });
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [view, setView] = useState<ScanView>(initialView);
+  const [phase, setPhase] = useState<ScanPhase>(initialPhase);
+  const [index, setIndex] = useState(initialIndex);
+  const [total, setTotal] = useState(initialTotal);
+  const [rows, setRows] = useState<SavedRow[]>(initialRows);
+  const [subtotalCents, setSubtotalCents] = useState(initialSubtotalCents);
+  const [summary, setSummary] = useState<ExportSummary | null>(initialSummary ?? null);
+  const [errorMessage, setErrorMessage] = useState(initialError);
 
-  function clear() {
-    if (timer.current) {
-      clearInterval(timer.current);
-      timer.current = null;
+  // A monotonic run token guards against a superseded run's async work landing on
+  // a newer one. `start()` captures an id; the progress callback and the post-await
+  // block no-op unless the id is still current. `cancel()` (and a restart) bump the
+  // token, so an aborted run's late resolution can't clobber the live view or
+  // double-append rows. `latestUnsub` is only for releasing the listener on unmount.
+  const runRef = useRef(0);
+  const latestUnsub = useRef<(() => void) | null>(null);
+
+  // Release the live progress listener if the panel closes mid-scan — no leaks.
+  useEffect(() => () => latestUnsub.current?.(), []);
+
+  async function start() {
+    const id = ++runRef.current;
+    setRows([]);
+    setSubtotalCents(0);
+    setIndex(0);
+    setTotal(0);
+    setPhase("collecting");
+    setView("saving");
+
+    const { fromDate, toDate } = periodRange(mode, year, range);
+    const unsub = onScanProgress((e) => {
+      if (id !== runRef.current) return; // superseded or cancelled — ignore
+      if (e.phase === "collecting") {
+        setPhase("collecting");
+        return;
+      }
+      setPhase("exporting");
+      setIndex(e.index);
+      setTotal(e.total);
+      if (e.result.status === "saved") {
+        const cents = e.result.fsaEligibleCents;
+        setRows((rs) => [...rs, savedRow(e.result)]);
+        setSubtotalCents((c) => c + cents);
+      }
+    });
+    latestUnsub.current = unsub;
+
+    const res = await startScan({ retailer: "amazon", fromDate, toDate });
+    unsub();
+    if (latestUnsub.current === unsub) latestUnsub.current = null;
+
+    // A cancel or a restart bumped the token past this run — drop its result.
+    if (id !== runRef.current) return;
+    if ("error" in res) {
+      setErrorMessage(res.error);
+      setView("error");
+      return;
     }
+    const s = res.summary;
+    setSummary(s);
+    setView(s.signedOut && s.saved.length === 0 ? "signedout" : "done");
   }
 
-  // Stop the timer once the scan completes, and always on unmount — no leaks.
-  useEffect(() => {
-    if (state.view === "done") clear();
-  }, [state.view]);
-  useEffect(() => clear, []);
-
-  function start() {
-    clear();
-    setState({ view: "saving", checked: 0, foundCount: 0 });
-    timer.current = setInterval(() => {
-      setState((s) => {
-        const checked = s.checked + 2;
-        if (checked >= TARGET) {
-          return { view: "done", checked: TARGET, foundCount: CATALOG.length };
-        }
-        const revealed = THRESHOLDS.filter((t) => t <= checked).length;
-        return { view: "saving", checked, foundCount: Math.max(revealed, s.foundCount) };
-      });
-    }, TICK_MS);
+  function cancel() {
+    runRef.current++; // invalidate the in-flight run's callback + resolution
+    void cancelScan();
+    setView("home");
   }
 
-  function toHome() {
-    clear();
-    setState({ view: "home", checked: 0, foundCount: 0 });
+  function reset() {
+    setView("home");
   }
 
-  // Derived values (port of the prototype's `renderVals`).
-  const found = CATALOG.slice(0, state.foundCount);
   const yearMode = mode === "year";
-  const fileYear = yearMode ? year : (range?.from?.getFullYear() ?? year);
   const periodShort = yearMode
     ? String(year)
     : range?.from && range?.to
       ? rangeShort(range.from, range.to)
       : "custom range";
-  const sum = found.reduce((acc, r) => acc + r.a, 0);
-  const rows = found.map((r) => ({
-    date: r.d,
-    amount: money(r.a),
-    name: `Amazon_${fileYear}-${r.md}`,
-  }));
 
   return {
-    view: state.view,
+    view,
     start,
-    cancel: toHome, // "Cancel" on Saving
-    reset: toHome, // "Save another year" on Done
+    cancel, // "Cancel" on Saving
+    reset, // "Save another year" / "Back" on the terminal views
     periodShort,
-    checkedLabel: `${state.checked} / ~${TARGET}`,
-    progressPct: Math.min(100, Math.round((state.checked / TARGET) * 100)),
-    foundCount: found.length,
-    subtotalStr: money(sum),
+    // Saving (two-phase)
+    phase,
+    index,
+    total,
     rows,
-    rowsTop: rows.slice(0, 3),
-    hasMore: found.length > 3,
-    moreCount: Math.max(0, found.length - 3),
-    currentOrderId: `113-${66000 + state.checked * 7}`,
+    subtotalStr: money(subtotalCents / 100),
+    // Done (folded from the finished summary)
+    done: summary ? summaryToDone(summary) : null,
+    // Error
+    errorMessage,
   };
 }
 
