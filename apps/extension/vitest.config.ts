@@ -8,6 +8,7 @@ export default defineConfig({
       "lib/**/*.test.ts",
       "components/**/*.test.{ts,tsx}",
       "retailers/**/*.test.ts",
+      "background/**/*.test.ts",
     ],
     coverage: {
       provider: "v8",
@@ -17,7 +18,10 @@ export default defineConfig({
       // would be noise, not signal. Add background/ and retailers/ here as
       // those domains land.
       include: ["lib/**"],
-      exclude: ["**/*.test.{ts,tsx}", "**/types.ts"],
+      // messaging.ts is a pure I/O shim over browser.runtime.sendMessage —
+      // meaningfully exercised only against a live panel (10c), so excluded
+      // like the other I/O boundaries rather than covered with hollow mocks.
+      exclude: ["**/*.test.{ts,tsx}", "**/types.ts", "lib/messaging.ts"],
       reporter: ["text-summary", "lcov"],
       // A baseline floor for the scaffold's sample lib (100% covered). Raise
       // these toward actual coverage as real domain code lands so the bar
