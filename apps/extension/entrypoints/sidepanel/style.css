@@ -17,6 +17,34 @@ body,
   height: 100%;
 }
 
+/* Themed scrollbars so scroll areas read as part of the paper vibe instead of
+   the OS default. Styling ::-webkit-scrollbar also makes it a classic,
+   space-reserving bar (not a macOS overlay), so it no longer draws over
+   content — the Saving list pairs this with `scrollbar-gutter: stable`. Colours
+   come from the shared tokens; the transparent border + padding-box clip give a
+   slim thumb centered in an 8px track. */
+* {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--dash) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--dash);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--ink3);
+  background-clip: padding-box;
+}
+
 /* Saving-view motion: the pulsing "scanning" dot and the blinking read cursor.
    Named distinctly from Tailwind's built-in `pulse` so we don't clobber it.
    The reduced-motion block in @substantiate/ui's theme.css zeroes these. */

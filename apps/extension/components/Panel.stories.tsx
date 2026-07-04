@@ -26,6 +26,15 @@ const doneSummary: ExportSummary = {
   ordersConsidered: 34,
 };
 
+// A long run of saved rows so the exporting-phase tape overflows and scrolls —
+// for eyeballing the scrollbar gutter and row rendering at volume.
+const LONG_ROWS = Array.from({ length: 34 }, (_, i) => {
+  const cents = 799 + ((i * 1373) % 15200);
+  const mon = ["Jul", "Jun", "May", "Apr", "Mar", "Feb"][i % 6];
+  const day = ((i * 5) % 27) + 1;
+  return { date: `${mon} ${day}, 2026`, cents };
+});
+
 // Device chrome mimicking the prototype: a fixed 380×644 rounded panel with the
 // warm border + soft shadow, clipping the panel's scroll to the frame.
 function Frame({ children }: { children: ReactNode }) {
@@ -117,6 +126,24 @@ export const SavingExporting: Story = {
       { date: "Jun 11, 2026", amount: "$129.40" },
     ],
     initialSubtotalCents: 20246,
+  },
+};
+
+// Saving, exporting with a long overflowing list — the scroll case. The tape
+// scrolls; its right gutter should keep the overlay scrollbar off the amounts,
+// aligned with the "Subtotal so far" value below.
+export const SavingLongList: Story = {
+  name: "Saving — long list (scrolls)",
+  args: {
+    initialView: "saving",
+    initialPhase: "exporting",
+    initialIndex: 34,
+    initialTotal: 41,
+    initialRows: LONG_ROWS.map((r) => ({
+      date: r.date,
+      amount: `$${(r.cents / 100).toFixed(2)}`,
+    })),
+    initialSubtotalCents: LONG_ROWS.reduce((n, r) => n + r.cents, 0),
   },
 };
 
