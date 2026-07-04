@@ -6,10 +6,12 @@ const LINK_CLASS =
 interface FooterProps {
   /** Opens the Bug-report modal (lifted to App). */
   onReportBug: () => void;
+  /** Opens the Ask-a-question (contact) modal (lifted to App). */
+  onAskQuestion: () => void;
 }
 
 /** Site footer: brand + tagline, two link columns, and a mono bottom bar. */
-export function Footer({ onReportBug }: FooterProps) {
+export function Footer({ onReportBug, onAskQuestion }: FooterProps) {
   return (
     <footer className="bg-paper">
       <div className="mx-auto flex max-w-[1080px] flex-wrap gap-9 px-8 pb-[34px] pt-[44px]">
@@ -65,9 +67,13 @@ export function Footer({ onReportBug }: FooterProps) {
               >
                 Privacy
               </a>
-              <a href={`mailto:${LINKS.email}`} className={LINK_CLASS}>
+              <button
+                type="button"
+                onClick={onAskQuestion}
+                className={`text-left ${LINK_CLASS}`}
+              >
                 Support
-              </a>
+              </button>
             </div>
           </div>
         </div>

@@ -37,7 +37,7 @@ export const SupportSection: Story = {
 };
 export const FooterSection: Story = {
   name: "Footer",
-  render: () => <Footer onReportBug={() => {}} />,
+  render: () => <Footer onReportBug={() => {}} onAskQuestion={() => {}} />,
 };
 
 /** The whole page assembled, top to bottom. */
