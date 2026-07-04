@@ -25,7 +25,7 @@ export default function App() {
       <Privacy />
       <Faq onAskQuestion={openContact} onReportBug={openBug} />
       <Support />
-      <Footer onReportBug={openBug} />
+      <Footer onReportBug={openBug} onAskQuestion={openContact} />
 
       <ContactModal
         open={modal === "contact"}
