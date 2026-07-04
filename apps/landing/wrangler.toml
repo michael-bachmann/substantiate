@@ -7,6 +7,15 @@ compatibility_date = "2026-06-01"
 workers_dev = false
 preview_urls = false
 
+# Serve on the canonical custom domains. The zone is on this same Cloudflare
+# account, so `wrangler deploy` provisions the hostnames + edge certs itself
+# (custom_domain routes, not workers.dev). www serves the same assets; a
+# www→apex redirect, if wanted, is a separate Cloudflare rule.
+routes = [
+  { pattern = "substantiate.dev", custom_domain = true },
+  { pattern = "www.substantiate.dev", custom_domain = true },
+]
+
 # Static marketing site: no Worker script, just the Vite build served as assets.
 # `directory` is resolved relative to this file, so it points at apps/landing/dist.
 [assets]
