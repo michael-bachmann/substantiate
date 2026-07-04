@@ -3,11 +3,10 @@
 // Store-listing URLs are placeholders until the extension is published.
 export const LINKS = {
   chrome: "#",
-  firefox: "#",
   github: "https://github.com/michael-bachmann/substantiate",
-  readme: "https://github.com/michael-bachmann/substantiate#readme",
+  readme: "https://github.com/michael-bachmann/substantiate",
   issues: "https://github.com/michael-bachmann/substantiate/issues/new",
-  buymeacoffee: "https://www.buymeacoffee.com/substantiate",
+  buymeacoffee: "https://ko-fi.com/mbachmann",
   website: "https://substantiate.dev",
   privacy: "https://substantiate.dev/privacy",
   email: "support@substantiate.dev",
